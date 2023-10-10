@@ -1,24 +1,31 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { selectCity } from '../actions/actions';
+import Select from 'react-select';
 import './dropdown.css';
 
 const CityDropdown = ({ cities, selectedCities, selectCity }) => {
-  const handleCityChange = (e) => {
-    selectCity(e.target.value);
+  const handleCityChange = (selectedOptions) => {
+    const selectedCityValues = selectedOptions.map((option) => option.value);
+    selectCity(selectedCityValues);
   };
+
+  const cityOptions = cities.map((city) => ({
+    value: city.id, // Use a unique identifier (e.g., id) as the value
+    label: city.name,
+  }));
 
   return (
     <div className="container">
       <div className="dropdown-container">
-      <select multiple value={selectedCities} onChange={handleCityChange}>
-        {cities.map((city) => (
-          <option key={city.id} value={city.name}>
-            {city.name}
-          </option>
-        ))}
-      </select>
-    </div>
+        <Select
+          isMulti
+          options={cityOptions}
+          value={selectedCities.map((city) => ({ value: city, label: city }))}
+          onChange={handleCityChange}
+          placeholder="Search or select cities..."
+        />
+      </div>
     </div>
   );
 };
@@ -28,22 +35,15 @@ const mapStateToProps = (state) => {
     (country) => country.country === state.selectedCountry
   );
 
-  console.log('Selected Country Object/CityDropdown: ', selectedCountry);
-
   const states = selectedCountry ? selectedCountry.states : [];
-
-  console.log('States/CityDropdown:',states);
-
   const selectedState = states
     ? states.find(
         (states) => states.stateName === state.selectedState
       )
     : null;
 
-  console.log('Selected State Object/CityDropdown: ', selectedState);
-
-
   const cities = selectedState ? selectedState.city : [];
+  console.log('Cities/CityDropdown: ',cities);
 
   return {
     cities,
